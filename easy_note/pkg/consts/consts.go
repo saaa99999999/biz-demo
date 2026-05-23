@@ -15,7 +15,10 @@
 
 package consts
 
-import "os"
+import (
+	"fmt"
+	"os"
+)
 
 const (
 	NoteTableName   = "note"
@@ -35,21 +38,23 @@ const (
 )
 
 // SecretKey returns the JWT signing key from the JWT_SECRET_KEY environment variable.
-// Panics at startup if the variable is not set, preventing silent insecure defaults.
+// Terminates at startup if the variable is not set, preventing silent insecure defaults.
 func SecretKey() string {
 	key := os.Getenv("JWT_SECRET_KEY")
 	if key == "" {
-		panic("JWT_SECRET_KEY environment variable is required. Generate a strong random key.")
+		fmt.Fprintf(os.Stderr, "fatal: JWT_SECRET_KEY is not set. Generate one with: openssl rand -base64 32\n")
+		os.Exit(1)
 	}
 	return key
 }
 
 // MySQLDSN returns the database connection string from the DB_DSN environment variable.
-// Panics at startup if the variable is not set.
+// Terminates at startup if the variable is not set.
 func MySQLDSN() string {
 	dsn := os.Getenv("DB_DSN")
 	if dsn == "" {
-		panic("DB_DSN environment variable is required")
+		fmt.Fprintf(os.Stderr, "fatal: DB_DSN is not set. Example: user:password@tcp(localhost:3306)/dbname?charset=utf8&parseTime=True&loc=Local\n")
+		os.Exit(1)
 	}
 	return dsn
 }
